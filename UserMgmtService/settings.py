@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'UserMgmtService.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'drf_demo_app',
+        'NAME': 'user_mgmt_service',
         'USER': 'postgres',
         'PASSWORD': '123321',
         'HOST': 'localhost',

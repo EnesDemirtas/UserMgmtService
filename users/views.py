@@ -2,13 +2,14 @@
 from django.contrib.auth import login
 
 # rest_framework imports
-from rest_framework import status, generics, permissions
+from rest_framework import generics, permissions, viewsets
 
 # knox imports
 from knox.views import LoginView as KnoxLoginView
 
 # local app imports
-from .serializers import CustomUserSerializer, AuthSerializer, AuthTokenSerializer
+from .serializers import CustomUserSerializer, AuthSerializer, AuthTokenSerializer, CustomUserAddressSerializer
+from .models import CustomUserAddress
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -40,3 +41,8 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
     def perform_update(self, serializer):
         """Update authenticated user"""
         serializer.save(user=self.request.user)
+
+
+class CustomUserAddressViewSet(viewsets.ModelViewSet):
+    queryset = CustomUserAddress.objects.all()
+    serializer_class = CustomUserAddressSerializer

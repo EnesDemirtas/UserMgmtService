@@ -1,14 +1,34 @@
 from rest_framework import serializers
 from rest_framework.authtoken.serializers import AuthTokenSerializer as BaseAuthTokenSerializer
 from django.contrib.auth import authenticate
-from .models import CustomUser
+from .models import CustomUser, CustomUserAddress
 from django.utils.translation import gettext_lazy as _
 
 
+class CustomUserAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUserAddress
+        fields = ('id', 'user', 'street', 'city', 'state', 'zip_code')
+
+    def create(self, validated_data):
+        try:
+            address = CustomUserAddress.objects.create(**validated_data)
+            return address
+        except ValueError as e:
+            raise serializers.ValidationError({'error': str(e)})
+
+    def update(self, instance, validated_data):
+        """Update an address and return it"""
+        address = super().update(instance, validated_data)
+        return address
+
+
 class CustomUserSerializer(serializers.ModelSerializer):
+    addresses = CustomUserAddressSerializer(many=True, read_only=True)
+
     class Meta:
         model = CustomUser
-        fields = "__all__"
+        fields = ('id', 'email', 'name', 'phone', 'is_staff', 'is_active', 'created_at', 'updated_at', 'addresses')
         extra_kwargs = {'password': {'write_only': True, 'min_length': 6}}
 
     def create(self, validated_data):
@@ -51,7 +71,6 @@ class AuthSerializer(serializers.Serializer):
             raise serializers.ValidationError(msg, code='authentication')
 
         attrs['user'] = user
-        return
 
 
 class AuthTokenSerializer(BaseAuthTokenSerializer):

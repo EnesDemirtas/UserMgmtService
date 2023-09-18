@@ -10,7 +10,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_("email address"), unique=True)
     name = models.CharField(max_length=150, blank=True)
     phone = PhoneNumberField(null=True, blank=True, unique=True)
-    address = models.CharField(max_length=150, blank=True, null=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -23,3 +22,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class CustomUserAddress(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='addresses')
+    street = models.CharField(max_length=150)
+    city = models.CharField(max_length=150)
+    state = models.CharField(max_length=150)
+    zip_code = models.CharField(max_length=10)
+
+    def __str__(self):
+        return f"{self.street}, {self.city}, {self.state} {self.zip_code}"

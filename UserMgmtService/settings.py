@@ -10,21 +10,27 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import environ
+import os
 from pathlib import Path
 from datetime import timedelta
 from rest_framework.settings import api_settings
 
+env = environ.Env()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$q728to%4)no#95kk)4+hb9e&3$_o3*6j!@b24%$yuo*1j(2)!'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -38,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_rest_passwordreset',
     'knox',
     'phonenumbers',
     'api',
@@ -59,7 +66,7 @@ ROOT_URLCONF = 'UserMgmtService.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -82,7 +89,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'user_mgmt_service',
         'USER': 'postgres',
-        'PASSWORD': '123321',
+        'PASSWORD': env('DB_PASSWORD'),
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -146,3 +153,12 @@ REST_KNOX = {
     # This defines if the token expiry time is extended by TOKEN_TTL each time the token is used.
     'EXPIRY_DATETIME_FORMAT': api_settings.DATETIME_FORMAT,
 }
+
+# Email Backend Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Replace with your preferred backend
+
+EMAIL_PORT = 587  # Replace with your email port
+EMAIL_USE_TLS = True  # Set to False if your email server doesn't use TLS
+EMAIL_HOST = 'smtp.gmail.com'  # Replace with your email host for gmail -> 'smtp.gmail.com'
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # Replace with your email username
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')  # Replace with your email password

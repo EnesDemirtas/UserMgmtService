@@ -28,7 +28,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'email', 'name', 'phone', 'is_staff', 'is_active', 'created_at', 'updated_at', 'addresses')
+        fields = (
+            'id', 'email', 'password', 'name', 'phone', 'is_staff', 'is_active', 'created_at', 'updated_at',
+            'addresses')
         extra_kwargs = {'password': {'write_only': True, 'min_length': 6}}
 
     def create(self, validated_data):
@@ -39,12 +41,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'error': str(e)})
 
     def update(self, instance, validated_data):
-        """Update a user, setting the password correctly and return it"""
-        password = validated_data.pop('password', None)
+        """Update a user and return it"""
         user = super().update(instance, validated_data)
-        if password:
-            user.set_password(password)
-            user.save()
         return user
 
 
@@ -97,3 +95,12 @@ class AuthTokenSerializer(BaseAuthTokenSerializer):
 
         attrs['user'] = user
         return attrs
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+
+class ResetPasswordEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)

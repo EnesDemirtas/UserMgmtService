@@ -1,10 +1,10 @@
 from django.urls import path, include
 from knox import views as knox_views
 from rest_framework.routers import DefaultRouter
-from .views import CreateUserView, LoginView, ManageUserView, CustomUserAddressViewSet
+from .views import CreateUserView, LoginView, ManageUserView, CustomUserAddressViewSet, change_password
 
-router = DefaultRouter()
-router.register(r'addresses', CustomUserAddressViewSet)
+addresses_router = DefaultRouter()
+addresses_router.register(r'addresses', CustomUserAddressViewSet)
 
 urlpatterns = [
     path('register/', CreateUserView.as_view(), name='register'),
@@ -12,5 +12,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='knox_login'),
     path('logout/', knox_views.LogoutView.as_view(), name='knox_logout'),
     path('logoutall/', knox_views.LogoutAllView.as_view(), name='knox_logoutall'),
-    path('profile/', include(router.urls))
+    path('profile/', include(addresses_router.urls)),
+    path('profile/password_change/', change_password, name='change_password'),
+    path('profile/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset'))
 ]

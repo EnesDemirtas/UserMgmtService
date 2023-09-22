@@ -57,3 +57,14 @@ D
 api/__init__.py,4\a\4a6406639b54c66f60832033746cf3ac6c6007bc
 J
 api/migrations/__init__.py,7\8\78db5e935d8352b3194116332a39f029f4f53b90
+4
+.env,3\c\3c84dcdc6bbe3d7817c49dcdc327b926fea1808a
+:
+
+.gitignore,a\5\a5cc2925ca8258af241be7e5b0381edf30266302
+X
+(templates/email/password_reset_email.txt,2\0\20714988c16dae1127fe7e9eadfee23f92e51516
+@
+users/signals.py,a\0\a0e0150836975a196d6c9d23ebabbcfa31d724e1
+Y
+)templates/email/password_reset_email.html,4\a\4aa80519f99e1391b7a647e0ae85782e782de144

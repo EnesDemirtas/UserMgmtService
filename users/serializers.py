@@ -1,8 +1,9 @@
+from django.contrib.auth import authenticate
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.authtoken.serializers import AuthTokenSerializer as BaseAuthTokenSerializer
-from django.contrib.auth import authenticate
+
 from .models import CustomUser, CustomUserAddress
-from django.utils.translation import gettext_lazy as _
 
 
 class CustomUserAddressSerializer(serializers.ModelSerializer):
@@ -29,8 +30,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = (
-            'id', 'email', 'password', 'name', 'phone', 'is_staff', 'is_active', 'created_at', 'updated_at',
-            'addresses')
+            'id', 'email', 'password', 'name', 'phone', 'is_staff', 'is_active', 'is_verified', 'created_at',
+            'updated_at', 'addresses')
         extra_kwargs = {'password': {'write_only': True, 'min_length': 6}}
 
     def create(self, validated_data):

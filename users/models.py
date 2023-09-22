@@ -1,7 +1,9 @@
+from uuid import uuid4
+
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
 from django.utils.translation import gettext_lazy as _
+from phonenumber_field.modelfields import PhoneNumberField
 
 from .managers import CustomUserManager
 
@@ -12,6 +14,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     phone = PhoneNumberField(null=True, blank=True, unique=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -33,3 +36,9 @@ class CustomUserAddress(models.Model):
 
     def __str__(self):
         return f"{self.street}, {self.city}, {self.state} {self.zip_code}"
+
+
+class EmailConfirmationToken(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)

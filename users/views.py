@@ -1,19 +1,22 @@
 # django imports
+from datetime import timedelta
+
 from django.contrib.auth import login, update_session_auth_hash
-
-# rest_framework imports
-from rest_framework import generics, permissions, viewsets, status
-
+from django.utils import timezone
 # knox imports
 from knox.views import LoginView as KnoxLoginView
+# rest_framework imports
+from rest_framework import generics, permissions, viewsets, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from .models import CustomUserAddress, EmailConfirmationToken, CustomUser
 # local app imports
 from .serializers import CustomUserSerializer, AuthSerializer, AuthTokenSerializer, CustomUserAddressSerializer, \
     ChangePasswordSerializer
-from .models import CustomUserAddress
+from .utils import send_confirmation_email
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -50,6 +53,36 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
 class CustomUserAddressViewSet(viewsets.ModelViewSet):
     queryset = CustomUserAddress.objects.all()
     serializer_class = CustomUserAddressSerializer
+
+
+class SendEmailConfirmationTokenAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        user = request.user
+        token = EmailConfirmationToken.objects.create(user=user)
+        send_confirmation_email(email=user.email, token_id=token.pk, user_id=user.pk)
+        return Response(data=None, status=201)
+
+
+class ConfirmEmailView(APIView):
+    def get(self, request):
+        token_id = request.GET.get('token_id', None)
+        user_id = request.GET.get('user_id', None)
+        try:
+            token = EmailConfirmationToken.objects.get(pk=token_id)
+            user = CustomUser.objects.get(pk=user_id)
+            if token.user_id != user.pk:
+                return Response(data={'error': 'Token is not valid'}, status=400)
+            if token.created_at < timezone.now() - timedelta(minutes=5):
+                return Response(data={'error': 'Token is expired'}, status=400)
+            user.is_verified = True
+            user.save()
+            return Response(data={'message': 'Email is confirmed'}, status=200)
+        except CustomUser.DoesNotExist:
+            return Response(data={'error': 'User does not exist'}, status=400)
+        except EmailConfirmationToken.DoesNotExist:
+            return Response(data={'error': 'Token is not valid'}, status=400)
 
 
 @api_view(['POST'])
